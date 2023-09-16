@@ -1,5 +1,5 @@
 {
-  "name": "controle-de-gastos",
+  "name": "finance-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -7,7 +7,8 @@
     "@mantine/core": "^6.0.10",
     "@mantine/dates": "^6.0.10",
     "@mantine/form": "^6.0.10",
-    "@mantine/hooks": "^6.0.10",
+    "@mantine/hooks": "^6.0.20",
+    "@tabler/icons-react": "^2.34.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
