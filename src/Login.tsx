@@ -14,6 +14,11 @@ import { useForm } from "@mantine/form";
 import { useState } from "react";
 import { AlertCircle } from "tabler-icons-react";
 
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
 export default function Login({ setAuth }: { setAuth: Function }) {
   const [overlay, setOverlay] = useState(false);
   const [error, setError] = useState<string>("");
@@ -25,19 +30,50 @@ export default function Login({ setAuth }: { setAuth: Function }) {
 
     validate: {
       email: (val) =>
-        /^\S+@\S+$/.test(val) ? null : "Informe seu endereço de e-mail",
+        /^\S+@\S+$/.test(val) ? null : "Should be a valid e-mail address",
       password: (val) =>
         val.length <= 6
-          ? "Sua chave de acesso possui pelo menos 6 caracteres"
+          ? "Your password is at least 6 characters long"
           : null,
     },
   });
 
-  const doLogin = async () => {
-    // @TODO implement doLogin
-    console.warn("Not implemented yet!");
-    setAuth('notreallyatoken');
-  }
+  const handleSubmit = async (values: LoginFormValues) => {
+    setOverlay(true);
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_ADDRESS}/login`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            user: values.email,
+            password: values.password,
+          }),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      switch (response.status) {
+        case 200:
+          const data = await response.json();
+          setAuth(data.message);
+          setError("");
+          break;
+        case 400:
+          setError("Check your e-mail and password and try again.");
+          break;
+        default:
+          throw new Error("failed to login");
+      }
+    } catch (err) {
+      setError(
+        "Something went wrong, check your internet connection and try again."
+      );
+      throw err;
+    } finally {
+      setOverlay(false);
+    }
+  };
 
   return (
     <Box
@@ -52,16 +88,16 @@ export default function Login({ setAuth }: { setAuth: Function }) {
         <LoadingOverlay visible={overlay} overlayBlur={2} />
         <Paper radius="md" p="xl" withBorder>
           <Divider
-            label="Acesso restrito - Controle de Gastos"
+            label="Restrict area - Finance"
             labelPosition="center"
             my="lg"
           />
-          <form onSubmit={form.onSubmit(doLogin)}>
+          <form onSubmit={form.onSubmit(handleSubmit)}>
             <Stack>
               {error && (
                 <Alert
                   icon={<AlertCircle size={16} />}
-                  title="Falha de autenticação"
+                  title="Authentication fail"
                   color="red"
                 >
                   {error}
@@ -77,7 +113,7 @@ export default function Login({ setAuth }: { setAuth: Function }) {
                 error={form.errors.email}
               />
               <PasswordInput
-                label="Chave de acesso"
+                label="Password"
                 placeholder="******"
                 value={form.values.password}
                 onChange={(event) =>
@@ -87,7 +123,7 @@ export default function Login({ setAuth }: { setAuth: Function }) {
               />
             </Stack>
             <Group position="apart" mt="xl">
-              <Button type="submit">Entrar</Button>
+              <Button type="submit">Enter</Button>
             </Group>
           </form>
         </Paper>
